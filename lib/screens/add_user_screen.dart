@@ -11,7 +11,7 @@ class AddUserScreen extends StatefulWidget {
 }
 
 class _AddUserScreenState extends State<AddUserScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(); // buat kode unuk untuk form
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   String _selectedGender = 'male';
@@ -19,6 +19,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
 
   @override
   void dispose() {
+    //salah satu flutter lifecycle, bersihin resource dulu sblum widget nya dihapus agar tidak terjadi memory leak
     _nameController.dispose();
     _emailController.dispose();
     super.dispose();
@@ -26,6 +27,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      //naah kode unik form akan dicek diluar sini
       setState(() {
         _isSubmitting = true;
       });

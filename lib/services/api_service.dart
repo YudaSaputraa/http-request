@@ -6,6 +6,7 @@ class ApiService {
   static const String baseUrl = 'https://be-872136705893.us-central1.run.app';
 
   Future<List<User>> getUsers() async {
+    //janji kalo berhasil akan ngasih list user
     try {
       final response = await http.get(Uri.parse('$baseUrl/users'));
       
@@ -23,6 +24,7 @@ class ApiService {
   }
 
   Future<void> addUser(User user) async {
+    //janji kalo selese, tapi ga ngasi apa apa
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/add-user'),

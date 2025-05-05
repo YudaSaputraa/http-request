@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
 
+//state management
 class UserProvider with ChangeNotifier {
+  //ini tu bisa nyimpen data sementara di state, with change notifier artinya dia bisa ngasih tau kalo datanya ada perubahan
   final ApiService _apiService = ApiService();
   List<User> _users = [];
   bool _isLoading = false;
@@ -12,7 +14,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> fetchUsers() async {
     _isLoading = true;
-    notifyListeners();
+    notifyListeners(); // ini function bawaan changetnotifier, buat ngasih tau kalo data berubah
 
     try {
       _users = await _apiService.getUsers();

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/user.dart';
 import '../providers/user_provider.dart';
 import 'add_user_screen.dart';
 
@@ -14,6 +13,7 @@ class HomeScreen extends StatelessWidget {
         title: const Text('User List'),
       ),
       body: Consumer<UserProvider>(
+        // ini adalah pasangan dari ChangeNotifier, fungsinya adalah mendengarkan perubahan yang ada di UserProvider
         builder: (context, userProvider, child) {
           if (userProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -60,9 +60,13 @@ class HomeScreen extends StatelessWidget {
                 },
                 onDismissed: (direction) async {
                   try {
-                    await Provider.of<UserProvider>(context, listen: false)
+                    await Provider.of<UserProvider>(
+                      context,
+                      listen: false,
+                    ) // ini false krna cuma ngakses method aja
                         .deleteUser(user.id?.toString() ?? '');
                     if (context.mounted) {
+                      // ngecek widget masih aktif atau ga, kalo engga maka snackbar ga akan muncul
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('User deleted successfully'),

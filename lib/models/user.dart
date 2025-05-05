@@ -12,6 +12,7 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    // sama seperti constructor biasa tapi bisa ditambah logika
     return User(
       id: json['id'] as int?,
       name: json['name'] as String? ?? '',
