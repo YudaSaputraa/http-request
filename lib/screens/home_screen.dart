@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import 'add_user_screen.dart';
+import 'edit_user_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -29,8 +30,14 @@ class HomeScreen extends StatelessWidget {
               final user = userProvider.users[index];
               return Dismissible(
                 key: Key(user.id?.toString() ?? ''),
-                direction: DismissDirection.endToStart,
+                direction: DismissDirection.horizontal,
                 background: Container(
+                  color: Colors.blue,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.only(left: 20),
+                  child: const Icon(Icons.edit, color: Colors.white),
+                ),
+                secondaryBackground: Container(
                   color: Colors.red,
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 20),
@@ -40,46 +47,66 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 confirmDismiss: (direction) async {
-                  return await showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Delete User'),
-                      content: const Text('Are you sure you want to delete this user?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Delete'),
-                        ),
-                      ],
-                    ),
-                  );
+                  if (direction == DismissDirection.endToStart) {
+                    return await showDialog(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Delete User'),
+                            content: const Text(
+                              'Are you sure you want to delete this user?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                    );
+                  }
+                  return true;
                 },
                 onDismissed: (direction) async {
-                  try {
-                    await Provider.of<UserProvider>(
-                      context,
-                      listen: false,
-                    ) // ini false krna cuma ngakses method aja
-                        .deleteUser(user.id?.toString() ?? '');
-                    if (context.mounted) {
-                      // ngecek widget masih aktif atau ga, kalo engga maka snackbar ga akan muncul
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('User deleted successfully'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
+                  if (direction == DismissDirection.endToStart) {
+                    try {
+                      await Provider.of<UserProvider>(
+                        context,
+                        listen: false,
+                      ).deleteUser(user.id?.toString() ?? '');
+                      if (context.mounted) {
+                        // ngecek widget masih aktif atau ga, kalo engga maka snackbar ga akan muncul
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('User deleted successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Failed to delete user: ${e.toString()}',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
-                  } catch (e) {
+                  } else if (direction == DismissDirection.startToEnd) {
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Failed to delete user: ${e.toString()}'),
-                          backgroundColor: Colors.red,
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditUserScreen(user: user),
                         ),
                       );
                     }

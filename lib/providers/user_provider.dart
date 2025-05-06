@@ -29,7 +29,6 @@ class UserProvider with ChangeNotifier {
   Future<void> addUser(User user) async {
     try {
       await _apiService.addUser(user);
-      // Don't throw if fetchUsers fails, just log it
       try {
         await fetchUsers();
       } catch (e) {
@@ -37,7 +36,7 @@ class UserProvider with ChangeNotifier {
       }
     } catch (e) {
       print('Error adding user: $e');
-      rethrow; // Only rethrow if the addUser itself fails
+      rethrow; // Hanya melempar ulang jika addUser itu sendiri gagal
     }
   }
 
@@ -51,6 +50,20 @@ class UserProvider with ChangeNotifier {
       }
     } catch (e) {
       print('Error deleting user: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> editUser(String id, User user) async {
+    try {
+      await _apiService.editUser(id, user);
+      try {
+        await fetchUsers();
+      } catch (e) {
+        print('Error refreshing user list: $e');
+      }
+    } catch (e) {
+      print('Error editing user: $e');
       rethrow;
     }
   }

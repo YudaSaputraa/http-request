@@ -3,23 +3,36 @@ import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../providers/user_provider.dart';
 
-class AddUserScreen extends StatefulWidget {
-  const AddUserScreen({super.key});
+class EditUserScreen extends StatefulWidget {
+  final User user;
+
+  const EditUserScreen({super.key, required this.user});
 
   @override
-  State<AddUserScreen> createState() => _AddUserScreenState();
+  State<EditUserScreen> createState() => _EditUserScreenState();
 }
 
-class _AddUserScreenState extends State<AddUserScreen> {
-  final _formKey = GlobalKey<FormState>(); // buat kode unuk untuk form
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  String _selectedGender = 'male';
+class _EditUserScreenState extends State<EditUserScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late String _selectedGender;
   bool _isSubmitting = false;
 
   @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.user.name);
+    _emailController = TextEditingController(text: widget.user.email);
+    _selectedGender = widget.user.gender?.toLowerCase() ?? 'male';
+    if (_selectedGender.isEmpty ||
+        (_selectedGender != 'male' && _selectedGender != 'female')) {
+      _selectedGender = 'male';
+    }
+  }
+
+  @override
   void dispose() {
-    //salah satu flutter lifecycle, bersihin resource dulu sblum widget nya dihapus agar tidak terjadi memory leak
     _nameController.dispose();
     _emailController.dispose();
     super.dispose();
@@ -27,23 +40,26 @@ class _AddUserScreenState extends State<AddUserScreen> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      //naah kode unik form akan dicek diluar sini
       setState(() {
         _isSubmitting = true;
       });
 
-      final user = User(
+      final updatedUser = User(
+        id: widget.user.id,
         name: _nameController.text,
         email: _emailController.text,
         gender: _selectedGender,
       );
 
       try {
-        await Provider.of<UserProvider>(context, listen: false).addUser(user);
+        await Provider.of<UserProvider>(
+          context,
+          listen: false,
+        ).editUser(widget.user.id?.toString() ?? '', updatedUser);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('User added successfully!'),
+              content: Text('User updated successfully!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -54,7 +70,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to add user: ${e.toString()}'),
+              content: Text('Failed to update user: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -72,9 +88,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add User'),
-      ),
+      appBar: AppBar(title: const Text('Edit User')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -109,30 +123,29 @@ class _AddUserScreenState extends State<AddUserScreen> {
               DropdownButtonFormField<String>(
                 value: _selectedGender,
                 decoration: const InputDecoration(labelText: 'Gender'),
-                items: ['male', 'female']
-                    .map((gender) => DropdownMenuItem(
-                          value: gender,
-                          child: Text(gender),
-                        ))
-                    .toList(),
+                items: const [
+                  DropdownMenuItem(value: 'male', child: Text('Male')),
+                  DropdownMenuItem(value: 'female', child: Text('Female')),
+                ],
                 onChanged: (value) {
-                  setState(() {
-                    _selectedGender = value!;
-                  });
+                  if (value != null) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _submitForm,
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Text('Add User'),
+                child:
+                    _isSubmitting
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Text('Update User'),
               ),
             ],
           ),
@@ -140,4 +153,4 @@ class _AddUserScreenState extends State<AddUserScreen> {
       ),
     );
   }
-} 
+}

@@ -59,4 +59,25 @@ class ApiService {
       rethrow;
     }
   }
+
+  Future<void> editUser(String id, User user) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/edit-user/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(user.toJson()),
+      );
+
+      print('Edit user response: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception(
+          'Failed to edit user: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('Exception in editUser: $e');
+      rethrow;
+    }
+  }
 } 

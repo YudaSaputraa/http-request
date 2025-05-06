@@ -12,12 +12,18 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // sama seperti constructor biasa tapi bisa ditambah logika
+    String? gender = json['gender'] as String?;
+    if (gender != null && gender.isNotEmpty) {
+      gender = gender.toLowerCase();
+    } else {
+      gender = 'male'; //diisi default value
+    }
+
     return User(
       id: json['id'] as int?,
       name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      gender: json['gender'] as String? ?? '',
+      gender: gender,
     );
   }
 
@@ -25,7 +31,7 @@ class User {
     return {
       'name': name ?? '',
       'email': email ?? '',
-      'gender': gender ?? '',
+      'gender': gender ?? 'male',
     };
   }
 } 
